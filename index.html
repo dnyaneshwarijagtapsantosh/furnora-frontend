@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furnora - Furniture Store</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo">Furnora 🛋️</div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="cart.html">Cart</a>
+            <a href="orders.html">My Orders</a>
+            <a href="login.html" id="authLink">Login</a>
+            <button id="logoutBtn" style="display:none;">Logout</button>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Our Furniture Collection</h1>
+
+        <div id="categoryFilter"></div>
+
+        <div id="productGrid" class="product-grid">
+            <!-- Products will load here via JavaScript -->
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/index.js"></script>
+</body>
+</html>
