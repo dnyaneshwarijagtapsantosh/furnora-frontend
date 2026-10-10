@@ -1,3 +1,9 @@
+function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text == null ? "" : String(text);
+    return div.innerHTML;
+}
+
 async function loadOrders() {
     if (!isLoggedIn()) {
         alert("Please login to view your orders.");
@@ -22,7 +28,7 @@ function renderOrders(orders) {
         return;
     }
 
-    // Navin orders varti disave (id ulte kramane)
+    // Navin orders varti
     orders.slice().reverse().forEach(order => {
         const div = document.createElement("div");
         div.classList.add("order-card");
@@ -30,12 +36,25 @@ function renderOrders(orders) {
         div.style.alignItems = "flex-start";
 
         const itemsHtml = order.items.map(item =>
-            `<li>${item.product.name} x ${item.quantity} — ₹${item.price * item.quantity}</li>`
+            `<li>${escapeHtml(item.product.name)} x ${item.quantity} — ₹${item.price * item.quantity}</li>`
         ).join("");
 
         const orderDate = new Date(order.orderDate).toLocaleDateString("en-IN", {
             day: "numeric", month: "short", year: "numeric"
         });
+
+        // Junya orders madhe address nasto, tyamule check
+        let deliveryHtml = "";
+        if (order.address) {
+            const paymentText = order.paymentMethod === "ONLINE"
+                ? "Online Payment (Paid - Demo)"
+                : "Cash on Delivery";
+            deliveryHtml = `
+                <p class="order-meta"><strong>Deliver to:</strong> ${escapeHtml(order.customerName)}, ${escapeHtml(order.address)}</p>
+                <p class="order-meta"><strong>Phone:</strong> ${escapeHtml(order.phone)}</p>
+                <p class="order-meta"><strong>Payment:</strong> ${paymentText}</p>
+            `;
+        }
 
         div.innerHTML = `
             <div style="display:flex; justify-content:space-between; width:100%;">
@@ -44,6 +63,7 @@ function renderOrders(orders) {
             </div>
             <p style="color:#777; font-size:14px;">${orderDate}</p>
             <ul style="margin:10px 0; padding-left:20px;">${itemsHtml}</ul>
+            ${deliveryHtml}
             <p class="price">Total: ₹${order.totalAmount}</p>
         `;
 

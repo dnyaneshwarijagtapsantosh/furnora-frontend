@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furnora - Checkout</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo">Furnora 🛋️</div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="cart.html">Cart</a>
+            <a href="orders.html">My Orders</a>
+            <a href="login.html" id="authLink">Login</a>
+            <button id="logoutBtn" style="display:none;">Logout</button>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Checkout</h1>
+
+        <div class="checkout-layout">
+            <form id="checkoutForm" class="checkout-form">
+                <h2>Delivery Details</h2>
+
+                <label class="field" for="custName">Full Name</label>
+                <input type="text" id="custName" placeholder="Your full name" required>
+
+                <label class="field" for="custPhone">Phone Number</label>
+                <input type="tel" id="custPhone" placeholder="10-digit mobile number" maxlength="10" required>
+
+                <label class="field" for="custAddress">Delivery Address (Location)</label>
+                <textarea id="custAddress" rows="3" placeholder="House no, street, area, city, pincode" required></textarea>
+
+                <h2 style="margin-top:25px;">Payment Option</h2>
+
+                <label class="pay-option">
+                    <input type="radio" name="payment" value="COD" checked>
+                    <span>Cash on Delivery</span>
+                </label>
+                <label class="pay-option">
+                    <input type="radio" name="payment" value="ONLINE">
+                    <span>Online Payment (Demo)</span>
+                </label>
+
+                <div id="onlineNote" class="demo-note">
+                    Demo mode: no real payment is taken and no card details are needed.
+                    The order will be marked as "Paid (Demo)".
+                </div>
+
+                <button type="submit" id="placeOrderBtn" class="place-order-btn">Place Order</button>
+            </form>
+
+            <div class="order-summary" id="orderSummary"></div>
+        </div>
+
+        <div id="emptyMsg" style="display:none;">
+            <p>Your cart is empty.</p>
+            <a href="index.html" class="btn-link primary">Continue Shopping</a>
+        </div>
+
+        <div id="confirmation" style="display:none;"></div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/checkout.js"></script>
+</body>
+</html>

@@ -1,11 +1,19 @@
 let allProducts = [];
 let selectedCategoryId = null;
 
+// Pills cha kram ithun thartho
+const CATEGORY_ORDER = ["Bed", "Chair", "Sofa", "Table", "Door", "Home Decor", "Kitchen and Dining", "Metal Legs"];
+
 async function loadCategories() {
     const categories = await getCategories();
     const container = document.getElementById("categoryFilter");
 
-    // "All" button
+    const rank = name => {
+        const i = CATEGORY_ORDER.indexOf(name);
+        return i === -1 ? 999 : i;
+    };
+    categories.sort((a, b) => rank(a.name) - rank(b.name));
+
     const allBtn = document.createElement("button");
     allBtn.textContent = "All";
     allBtn.classList.add("active");
@@ -22,11 +30,8 @@ async function loadCategories() {
 
 function filterByCategory(categoryId, clickedBtn) {
     selectedCategoryId = categoryId;
-
-    // Sagle buttons che 'active' class kadh, fakt clicked la laav
     document.querySelectorAll("#categoryFilter button").forEach(b => b.classList.remove("active"));
     clickedBtn.classList.add("active");
-
     renderProducts();
 }
 
@@ -35,7 +40,7 @@ function renderProducts() {
     grid.innerHTML = "";
 
     const productsToShow = selectedCategoryId
-        ? allProducts.filter(p => p.category.id === selectedCategoryId)
+        ? allProducts.filter(p => p.category && p.category.id === selectedCategoryId)
         : allProducts;
 
     if (productsToShow.length === 0) {
@@ -44,34 +49,26 @@ function renderProducts() {
     }
 
     productsToShow.forEach(product => {
+        const catName = product.category ? product.category.name : "";
         const card = document.createElement("div");
         card.classList.add("product-card");
 
         card.innerHTML = `
-            <img src="${product.imageUrl || 'https://via.placeholder.com/200x150?text=Furniture'}" alt="${product.name}">
-            <h3>${product.name}</h3>
+            <img src="${product.imageUrl || placeholderFor(catName)}" alt="${product.name}"
+                 onerror="this.onerror=null;this.src=placeholderFor('${catName}')"
+                 onclick="goToDetail(${product.id})" style="cursor:pointer;">
+            <h3 onclick="goToDetail(${product.id})" style="cursor:pointer;">${product.name}</h3>
             <p>${product.material || ''}</p>
             <p class="price">₹${product.price}</p>
-            <button onclick="handleAddToCart(${product.id})">Add to Cart</button>
+            <button onclick="goToDetail(${product.id})">View Details</button>
         `;
 
         grid.appendChild(card);
     });
 }
 
-async function handleAddToCart(productId) {
-    if (!isLoggedIn()) {
-        alert("Please login first to add items to cart.");
-        window.location.href = "login.html";
-        return;
-    }
-
-    try {
-        await addToCart(productId, 1);
-        alert("Added to cart!");
-    } catch (err) {
-        alert("Error: " + err.message);
-    }
+function goToDetail(productId) {
+    window.location.href = "product-detail.html?id=" + productId;
 }
 
 async function init() {

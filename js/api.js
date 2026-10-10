@@ -1,22 +1,56 @@
 const BASE_URL = "http://localhost:8080/api";
 
-// Token localStorage madhun ghenyasathi
-function getToken() {
-    return localStorage.getItem("token");
+// ===== Token: expire zala asel tar aapoaap kadhun takto =====
+function isTokenExpired(token) {
+    try {
+        const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+        const payload = JSON.parse(atob(base64));
+        return payload.exp * 1000 < Date.now();
+    } catch (e) {
+        return true;
+    }
 }
 
-// Login status check karnyasathi
+function getToken() {
+    const token = localStorage.getItem("token");
+    if (token && isTokenExpired(token)) {
+        localStorage.removeItem("token");
+        return null;
+    }
+    return token;
+}
+
 function isLoggedIn() {
     return getToken() !== null;
 }
 
-// Logout - token kadhun tak
 function logout() {
     localStorage.removeItem("token");
     window.location.href = "login.html";
 }
 
-// Generic fetch wrapper - Authorization header automatically jodto
+// ===== Image nasel tar category cha chitra dakhavto =====
+const CATEGORY_ART = {
+    "Sofa": ["🛋️", "#e8e0d5"],
+    "Table": ["🍽️", "#e6dccf"],
+    "Bed": ["🛏️", "#dfe4ea"],
+    "Chair": ["🪑", "#ebe3d6"],
+    "Door": ["🚪", "#e4d9cc"],
+    "Home Decor": ["🖼️", "#efe2e2"],
+    "Kitchen and Dining": ["🍴", "#dde6dc"],
+    "Metal Legs": ["🔩", "#e1e3e6"]
+};
+
+function placeholderFor(categoryName) {
+    const art = CATEGORY_ART[categoryName] || ["🛋️", "#eeeeee"];
+    const svg = "<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'>"
+        + "<rect width='100%' height='100%' fill='" + art[1] + "'/>"
+        + "<text x='50%' y='52%' font-size='96' text-anchor='middle' dominant-baseline='middle'>" + art[0] + "</text>"
+        + "</svg>";
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+}
+
+// ===== Generic fetch wrapper - Authorization header automatically jodto =====
 async function apiFetch(endpoint, options = {}) {
     const token = getToken();
     const headers = {
@@ -38,7 +72,6 @@ async function apiFetch(endpoint, options = {}) {
         throw new Error(errorText || "Something went wrong");
     }
 
-    // DELETE requests kahi vela rikama body deतात
     const text = await response.text();
     return text ? JSON.parse(text) : null;
 }
@@ -109,7 +142,7 @@ function getMyOrders() {
     return apiFetch("/orders");
 }
 
-// ===== Navbar update (sagle pages var vaparla jaईल) =====
+// ===== Navbar update (sagle pages var vaparla jaail) =====
 function updateNavbar() {
     const authLink = document.getElementById("authLink");
     const logoutBtn = document.getElementById("logoutBtn");

@@ -78,14 +78,8 @@ async function handleRemove(cartItemId) {
     }
 }
 
-async function handleCheckout() {
-    try {
-        const order = await checkout();
-        alert("Order placed successfully! Order ID: " + order.id);
-        window.location.href = "orders.html";
-    } catch (err) {
-        alert("Checkout failed: " + err.message);
-    }
+function handleCheckout() {
+    window.location.href = "checkout.html";
 }
 
 loadCart();
