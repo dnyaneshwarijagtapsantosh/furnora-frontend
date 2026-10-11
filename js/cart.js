@@ -1,3 +1,19 @@
+function startOfDay(d) {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+function groupHeading(dayTime) {
+    if (dayTime === 0) return "Added earlier";
+
+    const day = new Date(dayTime);
+    const diff = Math.round((startOfDay(new Date()) - day) / 86400000);
+    const dateText = day.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+
+    if (diff === 0) return "Today · " + dateText;
+    if (diff === 1) return "Yesterday · " + dateText;
+    return "Added on " + dateText;
+}
+
 async function loadCart() {
     if (!isLoggedIn()) {
         alert("Please login to view your cart.");
@@ -24,29 +40,44 @@ function renderCart(cart) {
         return;
     }
 
+    // Divsa pramane gat kar (0 = junya items, jyanchi date nahi)
+    const groups = {};
+    cart.items.forEach(item => {
+        const key = item.addedAt ? startOfDay(new Date(item.addedAt)).getTime() : 0;
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(item);
+    });
+
     let total = 0;
 
-    cart.items.forEach(item => {
-        const itemTotal = item.product.price * item.quantity;
-        total += itemTotal;
+    // Junya divsa pasun navin divsa kade
+    Object.keys(groups).map(Number).sort((a, b) => a - b).forEach(dayTime => {
+        const line = document.createElement("div");
+        line.classList.add("date-line");
+        line.innerHTML = `<span>${groupHeading(dayTime)}</span>`;
+        container.appendChild(line);
 
-        const div = document.createElement("div");
-        div.classList.add("cart-item");
+        groups[dayTime].forEach(item => {
+            const itemTotal = item.product.price * item.quantity;
+            total += itemTotal;
 
-        div.innerHTML = `
-            <div>
-                <h3>${item.product.name}</h3>
-                <p>₹${item.product.price} x ${item.quantity} = ₹${itemTotal}</p>
-            </div>
-            <div>
-                <button onclick="changeQuantity(${item.id}, ${item.quantity - 1})">-</button>
-                <span style="margin: 0 10px;">${item.quantity}</span>
-                <button onclick="changeQuantity(${item.id}, ${item.quantity + 1})">+</button>
-                <button onclick="handleRemove(${item.id})" style="margin-left: 15px; background: #c0392b;">Remove</button>
-            </div>
-        `;
+            const div = document.createElement("div");
+            div.classList.add("cart-item");
 
-        container.appendChild(div);
+            div.innerHTML = `
+                <div>
+                    <h3>${item.product.name}</h3>
+                    <p>₹${item.product.price} x ${item.quantity} = ₹${itemTotal}</p>
+                </div>
+                <div>
+                    <button onclick="changeQuantity(${item.id}, ${item.quantity - 1})">-</button>
+                    <span style="margin: 0 10px;">${item.quantity}</span>
+                    <button onclick="changeQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                    <button onclick="handleRemove(${item.id})" style="margin-left: 15px; background: #c0392b;">Remove</button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
     });
 
     summary.innerHTML = `
